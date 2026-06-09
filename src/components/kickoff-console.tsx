@@ -169,21 +169,26 @@ export function KickoffConsole({ creators, initialDashboard }: KickoffConsolePro
           sidebarCollapsed ? "lg:w-[84px]" : "lg:w-[288px]"
         }`}
       >
-        <div className="flex min-h-16 items-center justify-between gap-3 border-b border-[rgba(244,244,244,0.18)] px-4">
+        <div
+          className={`flex min-h-16 items-center border-b border-[rgba(244,244,244,0.18)] px-4 ${
+            sidebarCollapsed ? "lg:justify-center" : ""
+          }`}
+        >
           <BrandBlock collapsed={sidebarCollapsed} />
-          <button
-            aria-label={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
-            className="hidden rounded border border-[rgba(244,244,244,0.22)] p-2 text-[rgba(244,244,244,0.72)] transition hover:border-[rgba(244,244,244,0.72)] hover:text-white lg:inline-flex"
-            onClick={() => setSidebarCollapsed((value) => !value)}
-            title={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
-            type="button"
-          >
-            {sidebarCollapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
-          </button>
         </div>
 
         <div className="flex gap-4 overflow-x-auto px-4 py-4 lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto">
           <nav className="flex min-w-max gap-2 lg:min-w-0 lg:flex-col" aria-label="Primary navigation">
+            <button
+              aria-label={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
+              className="hidden h-11 w-full items-center justify-center rounded border border-transparent px-2 text-[rgba(244,244,244,0.68)] transition hover:border-[rgba(244,244,244,0.24)] hover:bg-[rgba(244,244,244,0.08)] hover:text-white lg:flex"
+              onClick={() => setSidebarCollapsed((value) => !value)}
+              title={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
+              type="button"
+            >
+              {sidebarCollapsed ? <PanelLeftOpen className="size-4 shrink-0" /> : <PanelLeftClose className="size-4 shrink-0" />}
+            </button>
+
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.key;
