@@ -211,16 +211,6 @@ export function KickoffConsole({ creators, initialDashboard }: KickoffConsolePro
               );
             })}
           </nav>
-
-          <div className={`hidden min-w-[260px] flex-1 lg:block lg:min-w-0 ${sidebarCollapsed ? "lg:hidden" : ""}`}>
-            <CreatorPicker
-              creators={creators}
-              selectedCreatorId={selectedCreatorId}
-              onSelect={setSelectedCreatorId}
-            />
-            <TriggerCard creator={selectedCreator} />
-            <CapabilitiesStack />
-          </div>
         </div>
       </aside>
 
@@ -270,6 +260,13 @@ export function KickoffConsole({ creators, initialDashboard }: KickoffConsolePro
               Building the operational layer behind creator-led brands from one command surface.
             </p>
           </div>
+
+          <KickoffContextPanel
+            creators={creators}
+            selectedCreatorId={selectedCreatorId}
+            creator={selectedCreator}
+            onSelect={setSelectedCreatorId}
+          />
 
           {error ? (
             <div className="mt-4 flex items-center gap-2 rounded border border-[var(--wj-red)] bg-white px-4 py-3 text-sm font-semibold text-[var(--wj-red)]">
@@ -332,55 +329,17 @@ function BrandBlock({ collapsed }: { collapsed: boolean }) {
   );
 }
 
-function CreatorPicker({
+function KickoffContextPanel({
   creators,
   selectedCreatorId,
+  creator,
   onSelect,
 }: {
   creators: CreatorProfile[];
   selectedCreatorId: string;
+  creator?: CreatorProfile;
   onSelect: (creatorId: string) => void;
 }) {
-  return (
-    <div className="mt-8 space-y-2">
-      {creators.map((creator) => (
-        <button
-          className={`w-full rounded border px-3 py-3 text-left transition ${
-            creator.id === selectedCreatorId
-              ? "border-[var(--wj-white)] bg-[var(--wj-white)] text-black"
-              : "border-[rgba(244,244,244,0.22)] bg-transparent text-[var(--wj-white)] hover:border-[rgba(244,244,244,0.72)]"
-          }`}
-          key={creator.id}
-          onClick={() => onSelect(creator.id)}
-          type="button"
-        >
-          <span className="block text-sm font-extrabold">{creator.name}</span>
-          <span
-            className={`mt-1 block text-xs ${
-              creator.id === selectedCreatorId ? "text-[rgba(0,0,0,0.62)]" : "text-[rgba(244,244,244,0.58)]"
-            }`}
-          >
-            {creator.category}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function TriggerCard({ creator }: { creator?: CreatorProfile }) {
-  return (
-    <div className="mt-8 rounded border border-[rgba(244,244,244,0.22)] p-4">
-      <p className="wj-label wj-invert-label">Current trigger</p>
-      <p className="mt-3 text-sm font-semibold">HubSpot stage changed to Kickoff</p>
-      <p className="mt-2 text-xs leading-5 text-[rgba(244,244,244,0.6)]">
-        {creator?.businessDevelopmentOwner} owns the handoff for {creator?.targetLaunchDate}.
-      </p>
-    </div>
-  );
-}
-
-function CapabilitiesStack() {
   const capabilities = [
     "Custom design",
     "Product development",
@@ -391,16 +350,72 @@ function CapabilitiesStack() {
   ];
 
   return (
-    <div className="mt-8 border-t border-[rgba(244,244,244,0.22)] pt-5">
-      <p className="wj-label wj-invert-label">Capabilities</p>
-      <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded border border-[rgba(244,244,244,0.22)]">
-        {capabilities.map((capability) => (
-          <div className="bg-[rgba(244,244,244,0.08)] px-3 py-3 text-xs font-extrabold uppercase leading-4 tracking-[0.08em]" key={capability}>
-            {capability}
-          </div>
-        ))}
+    <section className="wj-card mt-5 overflow-hidden">
+      <div className="wj-card-header">
+        <div>
+          <p className="wj-label">Kickoff context</p>
+          <h2 className="mt-1 text-sm font-semibold">Active creator and launch signal</h2>
+        </div>
+        <span className="rounded-full border border-black bg-[var(--wj-white)] px-2 py-1 text-xs font-extrabold uppercase">
+          {creator?.priority ?? "unscored"}
+        </span>
       </div>
-    </div>
+      <div className="grid gap-px bg-[var(--wj-line)] lg:grid-cols-[minmax(260px,0.9fr)_minmax(260px,0.8fr)_minmax(320px,1fr)]">
+        <div className="bg-white p-4">
+          <p className="wj-label">Creator queue</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+            {creators.map((item) => (
+              <button
+                className={`rounded border px-3 py-3 text-left transition ${
+                  item.id === selectedCreatorId
+                    ? "border-black bg-black text-[var(--wj-white)]"
+                    : "border-[var(--wj-line)] bg-[var(--wj-white)] hover:border-black hover:bg-white"
+                }`}
+                key={item.id}
+                onClick={() => onSelect(item.id)}
+                type="button"
+              >
+                <span className="block text-sm font-extrabold">{item.name}</span>
+                <span
+                  className={`mt-1 block text-xs ${
+                    item.id === selectedCreatorId ? "text-[rgba(244,244,244,0.64)]" : "text-[rgba(0,0,0,0.58)]"
+                  }`}
+                >
+                  {item.category}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white p-4">
+          <p className="wj-label">Current trigger</p>
+          <p className="mt-3 text-sm font-semibold">HubSpot stage changed to Kickoff</p>
+          <p className="mt-2 text-xs leading-5 text-[rgba(0,0,0,0.6)]">
+            {creator?.businessDevelopmentOwner ?? "Unassigned"} owns the handoff for{" "}
+            {creator?.targetLaunchDate ?? "the target launch window"}.
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <InfoPill label="Reach" value={creator ? creator.estimatedReach.toLocaleString() : "Missing"} />
+            <InfoPill label="Value" value={creator ? `$${creator.opportunityValue.toLocaleString()}` : "Missing"} />
+          </div>
+        </div>
+
+        <div className="bg-white p-4">
+          <p className="wj-label">Capabilities</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {capabilities.map((capability) => (
+              <span
+                className="rounded-full border border-[var(--wj-line)] bg-[var(--wj-white)] px-3 py-2 text-xs font-extrabold uppercase leading-none tracking-[0.08em]"
+                key={capability}
+              >
+                {capability}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
