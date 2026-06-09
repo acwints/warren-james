@@ -33,6 +33,7 @@ export type GoogleUser = {
 
 export type GoogleSession = {
   createdAt: number;
+  refreshedAt?: number;
   tokens: GoogleAutomationTokens;
   user: GoogleUser;
 };
@@ -51,6 +52,8 @@ type GoogleUserInfoResponse = {
   name?: string;
   picture?: string;
 };
+
+const GOOGLE_TOKEN_REFRESH_SKEW_MS = 5 * 60 * 1000;
 
 export function getBaseUrl(request: NextRequest) {
   const configuredUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
@@ -120,6 +123,37 @@ export async function exchangeGoogleCode(request: NextRequest, code: string, cod
   } satisfies GoogleAutomationTokens;
 }
 
+export async function refreshGoogleTokens(tokens: GoogleAutomationTokens) {
+  if (!tokens.refreshToken) {
+    throw new Error("Google refresh token is missing; sign in again to reconnect automation");
+  }
+
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    body: new URLSearchParams({
+      client_id: requireAuthEnv("GOOGLE_CLIENT_ID"),
+      client_secret: requireAuthEnv("GOOGLE_CLIENT_SECRET"),
+      grant_type: "refresh_token",
+      refresh_token: tokens.refreshToken,
+    }),
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Google token refresh failed with ${response.status}`);
+  }
+
+  const payload = (await response.json()) as GoogleTokenResponse;
+
+  return {
+    accessToken: payload.access_token,
+    expiresAt: Date.now() + payload.expires_in * 1000,
+    refreshToken: payload.refresh_token ?? tokens.refreshToken,
+    scope: payload.scope ?? tokens.scope,
+    tokenType: payload.token_type ?? tokens.tokenType,
+  } satisfies GoogleAutomationTokens;
+}
+
 export async function fetchGoogleUser(tokens: GoogleAutomationTokens) {
   const response = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
     headers: {
@@ -170,7 +204,44 @@ export async function requireGoogleSession() {
     } as const;
   }
 
-  return { response: null, session } as const;
+  try {
+    const freshSession = await refreshSessionIfNeeded(session);
+    return { response: null, session: freshSession } as const;
+  } catch (error) {
+    return {
+      response: NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Google session expired; sign in again to reconnect automation",
+        },
+        { status: 401 },
+      ),
+      session: null,
+    } as const;
+  }
+}
+
+export async function refreshSessionIfNeeded(session: GoogleSession) {
+  if (session.tokens.expiresAt > Date.now() + GOOGLE_TOKEN_REFRESH_SKEW_MS) {
+    return session;
+  }
+
+  const refreshedSession = {
+    ...session,
+    refreshedAt: Date.now(),
+    tokens: await refreshGoogleTokens(session.tokens),
+  } satisfies GoogleSession;
+  const cookieStore = await cookies();
+
+  cookieStore.set(
+    GOOGLE_SESSION_COOKIE,
+    encryptSession(refreshedSession),
+    sessionCookieOptions(),
+  );
+
+  return refreshedSession;
 }
 
 export function createOAuthSecret() {
