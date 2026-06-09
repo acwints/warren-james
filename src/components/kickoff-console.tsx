@@ -33,6 +33,7 @@ import type {
   WorkflowRun,
   WorkflowStep,
 } from "@/domain/workflow";
+import type { GoogleUser } from "@/server/auth/google";
 
 type DashboardMetrics = {
   totalRuns: number;
@@ -62,6 +63,7 @@ type DashboardState = {
 type KickoffConsoleProps = {
   creators: CreatorProfile[];
   initialDashboard: DashboardState;
+  operator?: GoogleUser;
 };
 
 type TabKey = "overview" | "review" | "runs" | "events" | "artifacts" | "integrations";
@@ -82,7 +84,7 @@ const stepIcons = {
   "pod-assignment": Rows3,
 } as const;
 
-export function KickoffConsole({ creators, initialDashboard }: KickoffConsoleProps) {
+export function KickoffConsole({ creators, initialDashboard, operator }: KickoffConsoleProps) {
   const [dashboard, setDashboard] = useState(initialDashboard);
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -238,6 +240,12 @@ export function KickoffConsole({ creators, initialDashboard }: KickoffConsolePro
                 Creator kickoff auto-spinup · intake, artifacts, assignment, and launch readiness
               </p>
             </div>
+            {operator ? (
+              <div className="hidden min-w-0 text-right md:block">
+                <p className="wj-label">Signed in</p>
+                <p className="mt-1 max-w-44 truncate text-xs font-semibold">{operator.email}</p>
+              </div>
+            ) : null}
             <button
               className="wj-button-primary shrink-0"
               disabled={isPending || !selectedCreator}

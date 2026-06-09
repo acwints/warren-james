@@ -26,16 +26,40 @@ const integrationDefinitions: Array<{
     ],
   },
   {
+    key: "google-auth",
+    label: "Google OAuth",
+    purpose: "Authenticates operators and grants Sheets plus Apps Script automation scopes.",
+    requiredEnv: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "AUTH_SECRET", "NEXT_PUBLIC_APP_URL"],
+    readyEnvGroups: [["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "AUTH_SECRET"]],
+  },
+  {
     key: "google-docs",
     label: "Google Docs",
-    purpose: "Creates the Biz Dev handoff document from the approved structure.",
-    requiredEnv: ["GOOGLE_DOCS_AUTOMATION_WEBHOOK_URL", "GOOGLE_HANDOFF_TEMPLATE_ID"],
+    purpose: "Creates the Biz Dev handoff document through Apps Script or a webhook.",
+    requiredEnv: [
+      "GOOGLE_APPS_SCRIPT_ID",
+      "GOOGLE_APPS_SCRIPT_HANDOFF_FUNCTION",
+      "GOOGLE_DOCS_AUTOMATION_WEBHOOK_URL",
+      "GOOGLE_HANDOFF_TEMPLATE_ID",
+    ],
+    readyEnvGroups: [
+      ["GOOGLE_APPS_SCRIPT_ID", "GOOGLE_HANDOFF_TEMPLATE_ID"],
+      ["GOOGLE_DOCS_AUTOMATION_WEBHOOK_URL", "GOOGLE_HANDOFF_TEMPLATE_ID"],
+    ],
   },
   {
     key: "google-sheets",
     label: "Google Sheets",
     purpose: "Writes the pod assignment request and ownership placeholders.",
-    requiredEnv: ["GOOGLE_SHEETS_AUTOMATION_WEBHOOK_URL", "GOOGLE_ASSIGNMENT_SHEET_ID"],
+    requiredEnv: [
+      "GOOGLE_ASSIGNMENT_SHEET_ID",
+      "GOOGLE_ASSIGNMENT_SHEET_RANGE",
+      "GOOGLE_SHEETS_AUTOMATION_WEBHOOK_URL",
+    ],
+    readyEnvGroups: [
+      ["GOOGLE_ASSIGNMENT_SHEET_ID"],
+      ["GOOGLE_SHEETS_AUTOMATION_WEBHOOK_URL", "GOOGLE_ASSIGNMENT_SHEET_ID"],
+    ],
   },
   {
     key: "asana",

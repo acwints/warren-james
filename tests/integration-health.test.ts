@@ -12,6 +12,7 @@ describe("getIntegrationHealth", () => {
     expect(integrations.map((integration) => integration.key)).toEqual([
       "hubspot",
       "email",
+      "google-auth",
       "google-docs",
       "google-sheets",
       "asana",
@@ -29,5 +30,21 @@ describe("getIntegrationHealth", () => {
 
     expect(integrations.find((integration) => integration.key === "email")?.status).toBe("ready");
     expect(integrations.find((integration) => integration.key === "asana")?.status).toBe("ready");
+  });
+
+  it("treats Google OAuth plus Sheets/App Script settings as live-ready", () => {
+    vi.stubEnv("INTEGRATION_MODE", "live");
+    vi.stubEnv("AUTH_SECRET", "test-secret");
+    vi.stubEnv("GOOGLE_CLIENT_ID", "client-id.apps.googleusercontent.com");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "client-secret");
+    vi.stubEnv("GOOGLE_HANDOFF_TEMPLATE_ID", "handoff-template");
+    vi.stubEnv("GOOGLE_APPS_SCRIPT_ID", "script-id");
+    vi.stubEnv("GOOGLE_ASSIGNMENT_SHEET_ID", "sheet-id");
+
+    const integrations = getIntegrationHealth();
+
+    expect(integrations.find((integration) => integration.key === "google-auth")?.status).toBe("ready");
+    expect(integrations.find((integration) => integration.key === "google-docs")?.status).toBe("ready");
+    expect(integrations.find((integration) => integration.key === "google-sheets")?.status).toBe("ready");
   });
 });

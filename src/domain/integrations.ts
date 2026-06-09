@@ -1,4 +1,10 @@
-export type IntegrationKey = "hubspot" | "email" | "google-docs" | "google-sheets" | "asana";
+export type IntegrationKey =
+  | "hubspot"
+  | "email"
+  | "google-auth"
+  | "google-docs"
+  | "google-sheets"
+  | "asana";
 
 export type IntegrationMode = "mock" | "live";
 
