@@ -32,6 +32,7 @@ export type GoogleUser = {
 };
 
 export type GoogleSession = {
+  authProvider?: "google" | "demo";
   createdAt: number;
   refreshedAt?: number;
   tokens: GoogleAutomationTokens;
@@ -54,6 +55,8 @@ type GoogleUserInfoResponse = {
 };
 
 const GOOGLE_TOKEN_REFRESH_SKEW_MS = 5 * 60 * 1000;
+const DEMO_USERNAME = "admin";
+const DEMO_PASSWORD = "wj123!";
 
 export function getBaseUrl(request: NextRequest) {
   const configuredUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
@@ -224,6 +227,10 @@ export async function requireGoogleSession() {
 }
 
 export async function refreshSessionIfNeeded(session: GoogleSession) {
+  if (session.authProvider === "demo") {
+    return session;
+  }
+
   if (session.tokens.expiresAt > Date.now() + GOOGLE_TOKEN_REFRESH_SKEW_MS) {
     return session;
   }
@@ -242,6 +249,39 @@ export async function refreshSessionIfNeeded(session: GoogleSession) {
   );
 
   return refreshedSession;
+}
+
+export function getGoogleAutomationTokens(session: GoogleSession) {
+  if (session.authProvider === "demo" || !session.tokens.accessToken) {
+    return undefined;
+  }
+
+  return session.tokens;
+}
+
+export function validateDemoCredentials(username: string, password: string) {
+  const expectedUsername = process.env.DEMO_LOGIN_USERNAME ?? DEMO_USERNAME;
+  const expectedPassword = process.env.DEMO_LOGIN_PASSWORD ?? DEMO_PASSWORD;
+
+  return username === expectedUsername && password === expectedPassword;
+}
+
+export function createDemoSession() {
+  return {
+    authProvider: "demo",
+    createdAt: Date.now(),
+    tokens: {
+      accessToken: "",
+      expiresAt: Date.now() + 1000 * 60 * 60 * 24,
+      scope: "",
+      tokenType: "Bearer",
+    },
+    user: {
+      email: "admin@warrenjames.demo",
+      emailVerified: true,
+      name: "Demo Admin",
+    },
+  } satisfies GoogleSession;
 }
 
 export function createOAuthSecret() {

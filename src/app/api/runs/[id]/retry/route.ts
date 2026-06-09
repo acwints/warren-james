@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { retryKickoffRun } from "@/server/application/kickoff-orchestrator";
 import { apiErrorResponse } from "@/server/api/errors";
-import { requireGoogleSession } from "@/server/auth/google";
+import { getGoogleAutomationTokens, requireGoogleSession } from "@/server/auth/google";
 import { createDefaultDependencies } from "@/server/integrations";
 
 export async function POST(_: Request, context: { params: Promise<{ id: string }> }) {
@@ -13,7 +13,10 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
     }
 
     const { id } = await context.params;
-    const run = await retryKickoffRun(id, createDefaultDependencies({ googleTokens: session.tokens }));
+    const run = await retryKickoffRun(
+      id,
+      createDefaultDependencies({ googleTokens: getGoogleAutomationTokens(session) }),
+    );
 
     return NextResponse.json({ run }, { status: run.status === "failed" ? 500 : 201 });
   } catch (error) {

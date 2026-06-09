@@ -15,6 +15,7 @@ export default async function Home({
     searchParams,
   ]);
   const authFailed = params.auth === "failed";
+  const demoFailed = params.auth === "demo_failed";
 
   return (
     <main className="grid min-h-screen place-items-center bg-[var(--wj-white)] px-4 py-8 text-[var(--wj-black)]">
@@ -57,9 +58,52 @@ export default async function Home({
           )}
         </div>
 
+        {!session ? (
+          <>
+            <div className="my-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs uppercase tracking-[0.18em] text-[rgba(0,0,0,0.4)]">
+              <span className="h-px bg-[var(--wj-line)]" />
+              <span>or</span>
+              <span className="h-px bg-[var(--wj-line)]" />
+            </div>
+
+            <form action="/api/auth/demo" className="space-y-3" method="post">
+              <label className="block text-left">
+                <span className="wj-label">Username</span>
+                <input
+                  autoComplete="username"
+                  className="mt-2 h-11 w-full rounded border border-black bg-white px-3 text-sm font-semibold outline-offset-2"
+                  defaultValue="admin"
+                  name="username"
+                  required
+                  type="text"
+                />
+              </label>
+              <label className="block text-left">
+                <span className="wj-label">Password</span>
+                <input
+                  autoComplete="current-password"
+                  className="mt-2 h-11 w-full rounded border border-black bg-white px-3 text-sm font-semibold outline-offset-2"
+                  defaultValue="wj123!"
+                  name="password"
+                  required
+                  type="password"
+                />
+              </label>
+              <button className="wj-action-secondary w-full bg-white" type="submit">
+                Demo login
+              </button>
+            </form>
+          </>
+        ) : null}
+
         {authFailed ? (
           <p className="mt-4 rounded border border-[var(--wj-red)] bg-white px-3 py-2 text-xs font-semibold text-[var(--wj-red)]">
             Google sign-in did not complete. Try again.
+          </p>
+        ) : null}
+        {demoFailed ? (
+          <p className="mt-4 rounded border border-[var(--wj-red)] bg-white px-3 py-2 text-xs font-semibold text-[var(--wj-red)]">
+            Demo username or password is incorrect.
           </p>
         ) : null}
 

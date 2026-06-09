@@ -3,7 +3,7 @@ import { getSampleCreator } from "@/data/sample-creators";
 import { creatorProfileSchema } from "@/domain/creator";
 import { runKickoffAutomation } from "@/server/application/kickoff-orchestrator";
 import { apiErrorResponse } from "@/server/api/errors";
-import { requireGoogleSession } from "@/server/auth/google";
+import { getGoogleAutomationTokens, requireGoogleSession } from "@/server/auth/google";
 import { createDefaultDependencies } from "@/server/integrations";
 
 export async function POST(request: Request) {
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
         source: "manual-demo",
         triggeredBy: "operator-console",
       },
-      createDefaultDependencies({ googleTokens: session.tokens }),
+      createDefaultDependencies({ googleTokens: getGoogleAutomationTokens(session) }),
     );
 
     return NextResponse.json({ run }, { status: run.status === "failed" ? 500 : 201 });

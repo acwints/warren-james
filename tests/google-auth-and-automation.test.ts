@@ -3,9 +3,12 @@ import { NextRequest } from "next/server";
 import { getSampleCreator } from "@/data/sample-creators";
 import {
   buildGoogleAuthorizationUrl,
+  createDemoSession,
   createCodeChallenge,
+  getGoogleAutomationTokens,
   googleOAuthScopes,
   refreshGoogleTokens,
+  validateDemoCredentials,
 } from "@/server/auth/google";
 import { buildHandoffSections } from "@/domain/templates";
 import { createLiveDependencies } from "@/server/integrations/live";
@@ -100,5 +103,11 @@ describe("Google auth and automation wiring", () => {
     expect(handoffDoc.metadata.scriptId).toBe("script-id");
     expect(assignmentRow.metadata.provider).toBe("google-sheets-api");
     expect(assignmentRow.url).toBe("https://docs.google.com/spreadsheets/d/sheet-id/edit");
+  });
+
+  it("validates demo credentials without exposing Google automation tokens", () => {
+    expect(validateDemoCredentials("admin", "wj123!")).toBe(true);
+    expect(validateDemoCredentials("admin", "wrong")).toBe(false);
+    expect(getGoogleAutomationTokens(createDemoSession())).toBeUndefined();
   });
 });
