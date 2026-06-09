@@ -10,6 +10,7 @@ import {
   FileText,
   Gauge,
   GitBranch,
+  LogOut,
   Mail,
   PanelLeftClose,
   PanelLeftOpen,
@@ -219,42 +220,18 @@ export function KickoffConsole({ creators, initialDashboard, operator }: Kickoff
       <div className={`min-h-screen transition-[padding] duration-200 ${shellOffsetClass}`}>
         <header className="sticky top-0 z-30 border-b border-black bg-[rgba(244,244,244,0.94)] backdrop-blur">
           <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-            <div className="flex min-w-0 items-center gap-4">
-              <Image
-                alt="Warren James"
-                className="hidden size-10 shrink-0 rounded border border-black object-contain sm:block"
-                height={40}
-                priority
-                src="/brand/warren-james-black-logo.png"
-                width={40}
-              />
-              <div className="min-w-0">
-                <p className="wj-label">Warren James internal ops</p>
-                <h1 className="truncate text-xl font-extrabold tracking-normal sm:text-2xl">
-                  {activeSection.label}
-                </h1>
-              </div>
+            <div className="min-w-0">
+              <p className="wj-label">Warren James internal ops</p>
+              <h1 className="truncate text-xl font-extrabold tracking-normal sm:text-2xl">
+                {activeSection.label}
+              </h1>
             </div>
             <div className="hidden min-w-0 flex-1 justify-center px-4 xl:flex">
               <p className="max-w-2xl truncate text-sm text-[rgba(0,0,0,0.62)]">
                 Creator kickoff auto-spinup · intake, artifacts, assignment, and launch readiness
               </p>
             </div>
-            {operator ? (
-              <div className="hidden min-w-0 text-right md:block">
-                <p className="wj-label">Signed in</p>
-                <p className="mt-1 max-w-44 truncate text-xs font-semibold">{operator.email}</p>
-              </div>
-            ) : null}
-            <button
-              className="wj-button-primary shrink-0"
-              disabled={isPending || !selectedCreator}
-              onClick={runDemo}
-              type="button"
-            >
-              {isPending ? <RefreshCw className="size-4 animate-spin" /> : <Play className="size-4" />}
-              Run kickoff
-            </button>
+            <AccountControls operator={operator} />
           </div>
         </header>
 
@@ -274,6 +251,8 @@ export function KickoffConsole({ creators, initialDashboard, operator }: Kickoff
             selectedCreatorId={selectedCreatorId}
             creator={selectedCreator}
             onSelect={setSelectedCreatorId}
+            onRunKickoff={runDemo}
+            isRunning={isPending}
           />
 
           {error ? (
@@ -337,16 +316,39 @@ function BrandBlock({ collapsed }: { collapsed: boolean }) {
   );
 }
 
+function AccountControls({ operator }: { operator?: GoogleUser }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      {operator ? (
+        <div className="hidden min-w-0 text-right sm:block">
+          <p className="wj-label">Signed in</p>
+          <p className="mt-1 max-w-48 truncate text-xs font-semibold">{operator.email}</p>
+        </div>
+      ) : null}
+      <form action="/api/auth/sign-out" method="post">
+        <button aria-label="Log out" className="wj-action-secondary h-10 bg-white px-3" type="submit">
+          <LogOut className="size-4" />
+          Log out
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function KickoffContextPanel({
   creators,
   selectedCreatorId,
   creator,
   onSelect,
+  onRunKickoff,
+  isRunning,
 }: {
   creators: CreatorProfile[];
   selectedCreatorId: string;
   creator?: CreatorProfile;
   onSelect: (creatorId: string) => void;
+  onRunKickoff: () => void;
+  isRunning: boolean;
 }) {
   const capabilities = [
     "Custom design",
@@ -364,9 +366,20 @@ function KickoffContextPanel({
           <p className="wj-label">Kickoff context</p>
           <h2 className="mt-1 text-sm font-semibold">Active creator and launch signal</h2>
         </div>
-        <span className="rounded-full border border-black bg-[var(--wj-white)] px-2 py-1 text-xs font-extrabold uppercase">
-          {creator?.priority ?? "unscored"}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="hidden rounded-full border border-black bg-[var(--wj-white)] px-2 py-1 text-xs font-extrabold uppercase sm:inline-flex">
+            {creator?.priority ?? "unscored"}
+          </span>
+          <button
+            className="wj-button-primary"
+            disabled={isRunning || !creator}
+            onClick={onRunKickoff}
+            type="button"
+          >
+            {isRunning ? <RefreshCw className="size-4 animate-spin" /> : <Play className="size-4" />}
+            Run kickoff
+          </button>
+        </div>
       </div>
       <div className="grid gap-px bg-[var(--wj-line)] lg:grid-cols-[minmax(260px,0.9fr)_minmax(260px,0.8fr)_minmax(320px,1fr)]">
         <div className="bg-white p-4">
