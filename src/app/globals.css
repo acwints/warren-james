@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "PP Neue Montreal";
+  src: url("/fonts/PPNeueMontreal-Book.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PP Neue Montreal";
+  src: url("/fonts/PPNeueMontreal-Medium.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PP Neue Montreal";
+  src: url("/fonts/PPNeueMontreal-Bold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: #f4f4f4;
+  --foreground: #000000;
+  --wj-black: #000000;
+  --wj-white: #f4f4f4;
+  --wj-paper: #ffffff;
+  --wj-ink-soft: #3a3a3a;
+  --wj-line: rgba(0, 0, 0, 0.18);
+  --wj-line-strong: rgba(0, 0, 0, 0.92);
+  --wj-blue: #8ab4f8;
+  --wj-green: #16a36a;
+  --wj-amber: #b98518;
+  --wj-red: #d24a34;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "PP Neue Montreal", "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "kern";
+}
+
+button,
+a {
+  outline-color: var(--wj-blue);
+  outline-offset: 3px;
+}
+
+.wj-card {
+  border: 1px solid var(--wj-line);
+  border-radius: 4px;
+  background: var(--wj-paper);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.wj-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--wj-line);
+  padding: 0.875rem 1rem;
+}
+
+.wj-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.58);
+}
+
+.wj-muted {
+  color: rgba(0, 0, 0, 0.58);
+}
+
+.wj-button-primary {
+  display: inline-flex;
+  height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--wj-black);
+  border-radius: 999px;
+  background: var(--wj-black);
+  padding: 0 1.15rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--wj-white);
+  transition: background 160ms ease, color 160ms ease, opacity 160ms ease, transform 160ms ease;
+}
+
+.wj-button-primary:hover {
+  background: var(--wj-white);
+  color: var(--wj-black);
+  transform: translateY(-1px);
+}
+
+.wj-button-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.wj-tab {
+  display: inline-flex;
+  height: 2.25rem;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0 0.8rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.62);
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.wj-tab:hover {
+  border-color: var(--wj-line);
+  color: var(--wj-black);
+}
+
+.wj-tab[data-active="true"] {
+  border-color: var(--wj-black);
+  background: var(--wj-black);
+  color: var(--wj-white);
+}
+
+.wj-brand-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.wj-invert-label {
+  color: rgba(244, 244, 244, 0.58);
+}
+
+.wj-hairline {
+  border-color: var(--wj-line);
+}
+
+.wj-action-secondary {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wj-line);
+  border-radius: 999px;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.wj-action-secondary:hover {
+  border-color: var(--wj-black);
+  background: var(--wj-white);
+}
